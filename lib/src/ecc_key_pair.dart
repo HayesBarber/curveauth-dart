@@ -13,4 +13,11 @@ class ECCKeyPair {
     final publicKey = await keyPair.extractPublicKey();
     return ECCKeyPair._(keyPair, publicKey);
   }
+
+  Future<Signature> createSignature(String challenge) async {
+    final algorithm = Ecdsa.p256(Sha256());
+    final data = challenge.codeUnits;
+    final signature = await algorithm.sign(data, keyPair: keyPair);
+    return signature;
+  }
 }
