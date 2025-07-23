@@ -7,7 +7,7 @@ environment:
   sdk: ^3.8.1
 
 dependencies:
-  pointycastle: ^4.0.0
+  cryptography: ^2.7.0
 
 dev_dependencies:
   lints: ^5.0.0
