@@ -30,26 +30,37 @@ class ECCKeyPair {
   }
 
   Map<String, String> toJson() {
-    final privBytes = privateKey.d!.toRadixString(16).padLeft(64, '0');
-    final pubX = publicKey.Q!.x!
-        .toBigInteger()!
-        .toRadixString(16)
-        .padLeft(64, '0');
-    final pubY = publicKey.Q!.y!
-        .toBigInteger()!
-        .toRadixString(16)
-        .padLeft(64, '0');
-    return {'privateKey': privBytes, 'publicKeyX': pubX, 'publicKeyY': pubY};
+    final d = privateKey.d;
+    final q = publicKey.Q;
+    if (d == null || q == null || q.x == null || q.y == null) {
+      throw StateError('Invalid ECC key: missing required components.');
+    }
+
+    final privHex = d.toRadixString(16).padLeft(64, '0');
+    final pubX = q.x!.toBigInteger()!.toRadixString(16).padLeft(64, '0');
+    final pubY = q.y!.toBigInteger()!.toRadixString(16).padLeft(64, '0');
+
+    return {'privateKey': privHex, 'publicKeyX': pubX, 'publicKeyY': pubY};
   }
 
   static ECCKeyPair fromJson(Map<String, String> json) {
     final ecDomain = ECDomainParameters('secp256r1');
-    final d = BigInt.parse(json['privateKey']!, radix: 16);
-    final x = BigInt.parse(json['publicKeyX']!, radix: 16);
-    final y = BigInt.parse(json['publicKeyY']!, radix: 16);
+
+    final dStr = json['privateKey'];
+    final xStr = json['publicKeyX'];
+    final yStr = json['publicKeyY'];
+
+    if (dStr == null || xStr == null || yStr == null) {
+      throw ArgumentError('Missing required key material in JSON map.');
+    }
+
+    final d = BigInt.parse(dStr, radix: 16);
+    final x = BigInt.parse(xStr, radix: 16);
+    final y = BigInt.parse(yStr, radix: 16);
     final Q = ecDomain.curve.createPoint(x, y);
     final privateKey = ECPrivateKey(d, ecDomain);
     final publicKey = ECPublicKey(Q, ecDomain);
+
     return ECCKeyPair._(privateKey, publicKey);
   }
 
