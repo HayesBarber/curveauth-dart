@@ -30,21 +30,7 @@ class ECCKeyPair {
     return ECCKeyPair._(priv, pub);
   }
 
-  Map<String, String> toJson() {
-    final d = privateKey.d;
-    final q = publicKey.Q;
-    if (d == null || q == null || q.x == null || q.y == null) {
-      throw StateError('Invalid ECC key: missing required components.');
-    }
-
-    final privHex = d.toRadixString(16).padLeft(64, '0');
-    final pubX = q.x!.toBigInteger()!.toRadixString(16).padLeft(64, '0');
-    final pubY = q.y!.toBigInteger()!.toRadixString(16).padLeft(64, '0');
-
-    return {'privateKey': privHex, 'publicKeyX': pubX, 'publicKeyY': pubY};
-  }
-
-  static ECCKeyPair fromJson(Map<String, String> json) {
+  factory ECCKeyPair.fromJson(Map<String, String> json) {
     final ecDomain = ECDomainParameters('secp256r1');
 
     final dStr = json['privateKey'];
@@ -63,6 +49,20 @@ class ECCKeyPair {
     final publicKey = ECPublicKey(Q, ecDomain);
 
     return ECCKeyPair._(privateKey, publicKey);
+  }
+
+  Map<String, String> toJson() {
+    final d = privateKey.d;
+    final q = publicKey.Q;
+    if (d == null || q == null || q.x == null || q.y == null) {
+      throw StateError('Invalid ECC key: missing required components.');
+    }
+
+    final privHex = d.toRadixString(16).padLeft(64, '0');
+    final pubX = q.x!.toBigInteger()!.toRadixString(16).padLeft(64, '0');
+    final pubY = q.y!.toBigInteger()!.toRadixString(16).padLeft(64, '0');
+
+    return {'privateKey': privHex, 'publicKeyX': pubX, 'publicKeyY': pubY};
   }
 
   Future<String> createSignature(String challenge) async {
