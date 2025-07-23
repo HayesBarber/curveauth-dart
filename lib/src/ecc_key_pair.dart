@@ -9,7 +9,7 @@ class ECCKeyPair {
 
   ECCKeyPair._(this.privateKey, this.publicKey);
 
-  static ECCKeyPair generate() {
+  factory ECCKeyPair.generate() {
     final ecDomain = ECDomainParameters('secp256r1');
     final keyGen = ECKeyGenerator();
 
@@ -27,6 +27,30 @@ class ECCKeyPair {
     final pub = pair.publicKey;
 
     return ECCKeyPair._(priv, pub);
+  }
+
+  Map<String, String> toJson() {
+    final privBytes = privateKey.d!.toRadixString(16).padLeft(64, '0');
+    final pubX = publicKey.Q!.x!
+        .toBigInteger()!
+        .toRadixString(16)
+        .padLeft(64, '0');
+    final pubY = publicKey.Q!.y!
+        .toBigInteger()!
+        .toRadixString(16)
+        .padLeft(64, '0');
+    return {'privateKey': privBytes, 'publicKeyX': pubX, 'publicKeyY': pubY};
+  }
+
+  static ECCKeyPair fromJson(Map<String, String> json) {
+    final ecDomain = ECDomainParameters('secp256r1');
+    final d = BigInt.parse(json['privateKey']!, radix: 16);
+    final x = BigInt.parse(json['publicKeyX']!, radix: 16);
+    final y = BigInt.parse(json['publicKeyY']!, radix: 16);
+    final Q = ecDomain.curve.createPoint(x, y);
+    final privateKey = ECPrivateKey(d, ecDomain);
+    final publicKey = ECPublicKey(Q, ecDomain);
+    return ECCKeyPair._(privateKey, publicKey);
   }
 
   Future<String> createSignature(String challenge) async {
