@@ -16,8 +16,7 @@ class ECCKeyPair {
 
   Future<Signature> createSignature(String challenge) async {
     final algorithm = Ecdsa.p256(Sha256());
-    final data = challenge.codeUnits;
-    final signature = await algorithm.sign(data, keyPair: keyPair);
+    final signature = await algorithm.signString(challenge, keyPair: keyPair);
     return signature;
   }
 }
