@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
 import 'package:pointycastle/export.dart';
+import 'package:pointycastle/pointycastle.dart';
 
 class ECCKeyPair {
   final ECPrivateKey privateKey;
@@ -87,23 +88,11 @@ class ECCKeyPair {
   }
 
   Uint8List _encodeDer(BigInt r, BigInt s) {
-    List<int> encodeInt(BigInt i) {
-      var bytes = i.toUnsigned(256).toRadixString(16).padLeft(64, '0');
-      var b = Uint8List.fromList(
-        List.generate(
-          bytes.length ~/ 2,
-          (i) => int.parse(bytes.substring(i * 2, i * 2 + 2), radix: 16),
-        ),
-      );
-      if (b[0] & 0x80 != 0) {
-        b = Uint8List.fromList([0x00, ...b]);
-      }
-      return [0x02, b.length, ...b];
-    }
+    final seq = ASN1Sequence();
 
-    final rEnc = encodeInt(r);
-    final sEnc = encodeInt(s);
-    final seq = [0x30, rEnc.length + sEnc.length, ...rEnc, ...sEnc];
-    return Uint8List.fromList(seq);
+    seq.add(ASN1Integer(r));
+    seq.add(ASN1Integer(s));
+
+    return seq.encode();
   }
 }
