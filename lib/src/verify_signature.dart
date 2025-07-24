@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:typed_data';
-import 'package:curveauth_dart/curveauth_dart.dart';
 import 'package:curveauth_dart/src/ecc_utils.dart';
 import 'package:pointycastle/pointycastle.dart';
 
@@ -12,8 +11,8 @@ class VerifySignature {
   ) {
     try {
       final signatureBytes = base64Decode(signatureB64);
-      final publicKey = ECCKeyPair.loadPublicKeyRawBase64(publicKeyB64);
-      final sig = EccUtils.decodeDer(signatureBytes);
+      final publicKey = ECCUtils.loadPublicKeyRawBase64(publicKeyB64);
+      final sig = ECCUtils.decodeDer(signatureBytes);
 
       final signer = Signer('SHA-256/ECDSA');
       signer.init(false, PublicKeyParameter<ECPublicKey>(publicKey));

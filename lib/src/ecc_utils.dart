@@ -1,7 +1,8 @@
+import 'dart:convert';
 import 'dart:typed_data';
 import 'package:pointycastle/pointycastle.dart';
 
-class EccUtils {
+class ECCUtils {
   static Uint8List encodeDer(BigInt r, BigInt s) {
     final seq = ASN1Sequence();
 
@@ -36,5 +37,28 @@ class EccUtils {
     }
 
     return ECSignature(r, s);
+  }
+
+  static ECPublicKey loadPublicKeyRawBase64(String b64) {
+    final bytes = base64Decode(b64);
+    if (bytes.length != 65 || bytes[0] != 0x04) {
+      throw ArgumentError('Invalid uncompressed public key format');
+    }
+
+    final x = BigInt.parse(
+      bytes
+          .sublist(1, 33)
+          .map((b) => b.toRadixString(16).padLeft(2, '0'))
+          .join(),
+      radix: 16,
+    );
+    final y = BigInt.parse(
+      bytes.sublist(33).map((b) => b.toRadixString(16).padLeft(2, '0')).join(),
+      radix: 16,
+    );
+
+    final ecDomain = ECDomainParameters('secp256r1');
+    final Q = ecDomain.curve.createPoint(x, y);
+    return ECPublicKey(Q, ecDomain);
   }
 }
