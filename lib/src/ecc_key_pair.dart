@@ -71,16 +71,8 @@ class ECCKeyPair {
       throw StateError('Public key is incomplete.');
     }
 
-    final xBytes = q.x!
-        .toBigInteger()!
-        .toUnsigned(256)
-        .toRadixString(16)
-        .padLeft(64, '0');
-    final yBytes = q.y!
-        .toBigInteger()!
-        .toUnsigned(256)
-        .toRadixString(16)
-        .padLeft(64, '0');
+    final xBytes = q.x!.toBigInteger()!.toRadixString(16).padLeft(64, '0');
+    final yBytes = q.y!.toBigInteger()!.toRadixString(16).padLeft(64, '0');
 
     final xList = List<int>.generate(
       32,
