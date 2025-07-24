@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
+import 'package:curveauth_dart/src/ecc_utils.dart';
 import 'package:pointycastle/export.dart';
-import 'package:pointycastle/pointycastle.dart';
 
 class ECCKeyPair {
   final ECPrivateKey privateKey;
@@ -30,21 +30,7 @@ class ECCKeyPair {
     return ECCKeyPair._(priv, pub);
   }
 
-  Map<String, String> toJson() {
-    final d = privateKey.d;
-    final q = publicKey.Q;
-    if (d == null || q == null || q.x == null || q.y == null) {
-      throw StateError('Invalid ECC key: missing required components.');
-    }
-
-    final privHex = d.toRadixString(16).padLeft(64, '0');
-    final pubX = q.x!.toBigInteger()!.toRadixString(16).padLeft(64, '0');
-    final pubY = q.y!.toBigInteger()!.toRadixString(16).padLeft(64, '0');
-
-    return {'privateKey': privHex, 'publicKeyX': pubX, 'publicKeyY': pubY};
-  }
-
-  static ECCKeyPair fromJson(Map<String, String> json) {
+  factory ECCKeyPair.fromJson(Map<String, String> json) {
     final ecDomain = ECDomainParameters('secp256r1');
 
     final dStr = json['privateKey'];
@@ -65,6 +51,46 @@ class ECCKeyPair {
     return ECCKeyPair._(privateKey, publicKey);
   }
 
+  Map<String, String> toJson() {
+    final d = privateKey.d;
+    final q = publicKey.Q;
+    if (d == null || q == null || q.x == null || q.y == null) {
+      throw StateError('Invalid ECC key: missing required components.');
+    }
+
+    final privHex = d.toRadixString(16).padLeft(64, '0');
+    final pubX = q.x!.toBigInteger()!.toRadixString(16).padLeft(64, '0');
+    final pubY = q.y!.toBigInteger()!.toRadixString(16).padLeft(64, '0');
+
+    return {'privateKey': privHex, 'publicKeyX': pubX, 'publicKeyY': pubY};
+  }
+
+  String exportPublicKeyRawBase64() {
+    final q = publicKey.Q;
+    if (q == null || q.x == null || q.y == null) {
+      throw StateError('Public key is incomplete.');
+    }
+
+    final xBytes = q.x!.toBigInteger()!.toRadixString(16).padLeft(64, '0');
+    final yBytes = q.y!.toBigInteger()!.toRadixString(16).padLeft(64, '0');
+
+    final xList = List<int>.generate(
+      32,
+      (i) => int.parse(xBytes.substring(i * 2, i * 2 + 2), radix: 16),
+    );
+    final yList = List<int>.generate(
+      32,
+      (i) => int.parse(yBytes.substring(i * 2, i * 2 + 2), radix: 16),
+    );
+
+    final pubBytes = Uint8List(65);
+    pubBytes[0] = 0x04;
+    pubBytes.setRange(1, 33, xList);
+    pubBytes.setRange(33, 65, yList);
+
+    return base64Encode(pubBytes);
+  }
+
   Future<String> createSignature(String challenge) async {
     final signer = Signer('SHA-256/ECDSA');
     final random = FortunaRandom();
@@ -83,16 +109,7 @@ class ECCKeyPair {
     final message = Uint8List.fromList(challenge.codeUnits);
     final sig = signer.generateSignature(message) as ECSignature;
 
-    final der = _encodeDer(sig.r, sig.s);
+    final der = ECCUtils.encodeDer(sig.r, sig.s);
     return base64Encode(der);
-  }
-
-  Uint8List _encodeDer(BigInt r, BigInt s) {
-    final seq = ASN1Sequence();
-
-    seq.add(ASN1Integer(r));
-    seq.add(ASN1Integer(s));
-
-    return seq.encode();
   }
 }
