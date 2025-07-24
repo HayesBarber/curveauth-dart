@@ -8,11 +8,11 @@ class VerifySignature {
   static bool verifySignature(
     String message,
     String signatureB64,
-    ECCKeyPair keyPair,
+    String publicKeyB64,
   ) {
     try {
       final signatureBytes = base64Decode(signatureB64);
-      final publicKey = keyPair.publicKey;
+      final publicKey = ECCKeyPair.loadPublicKeyRawBase64(publicKeyB64);
       final sig = EccUtils.decodeDer(signatureBytes);
 
       final signer = Signer('SHA-256/ECDSA');
