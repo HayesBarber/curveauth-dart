@@ -65,6 +65,40 @@ class ECCKeyPair {
     return {'privateKey': privHex, 'publicKeyX': pubX, 'publicKeyY': pubY};
   }
 
+  String exportPublicKeyRawBase64() {
+    final q = publicKey.Q;
+    if (q == null || q.x == null || q.y == null) {
+      throw StateError('Public key is incomplete.');
+    }
+
+    final xBytes = q.x!
+        .toBigInteger()!
+        .toUnsigned(256)
+        .toRadixString(16)
+        .padLeft(64, '0');
+    final yBytes = q.y!
+        .toBigInteger()!
+        .toUnsigned(256)
+        .toRadixString(16)
+        .padLeft(64, '0');
+
+    final xList = List<int>.generate(
+      32,
+      (i) => int.parse(xBytes.substring(i * 2, i * 2 + 2), radix: 16),
+    );
+    final yList = List<int>.generate(
+      32,
+      (i) => int.parse(yBytes.substring(i * 2, i * 2 + 2), radix: 16),
+    );
+
+    final pubBytes = Uint8List(65);
+    pubBytes[0] = 0x04;
+    pubBytes.setRange(1, 33, xList);
+    pubBytes.setRange(33, 65, yList);
+
+    return base64Encode(pubBytes);
+  }
+
   Future<String> createSignature(String challenge) async {
     final signer = Signer('SHA-256/ECDSA');
     final random = FortunaRandom();
