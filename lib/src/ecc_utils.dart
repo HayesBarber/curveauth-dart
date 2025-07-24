@@ -1,8 +1,7 @@
 import 'dart:typed_data';
-
 import 'package:pointycastle/pointycastle.dart';
 
-class Utils {
+class EccUtils {
   static Uint8List encodeDer(BigInt r, BigInt s) {
     final seq = ASN1Sequence();
 

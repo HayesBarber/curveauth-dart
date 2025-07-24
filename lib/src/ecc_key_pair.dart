@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
+import 'package:curveauth_dart/src/ecc_utils.dart';
 import 'package:pointycastle/export.dart';
-import 'package:pointycastle/pointycastle.dart';
 
 class ECCKeyPair {
   final ECPrivateKey privateKey;
@@ -83,16 +83,7 @@ class ECCKeyPair {
     final message = Uint8List.fromList(challenge.codeUnits);
     final sig = signer.generateSignature(message) as ECSignature;
 
-    final der = _encodeDer(sig.r, sig.s);
+    final der = EccUtils.encodeDer(sig.r, sig.s);
     return base64Encode(der);
-  }
-
-  Uint8List _encodeDer(BigInt r, BigInt s) {
-    final seq = ASN1Sequence();
-
-    seq.add(ASN1Integer(r));
-    seq.add(ASN1Integer(s));
-
-    return seq.encode();
   }
 }
