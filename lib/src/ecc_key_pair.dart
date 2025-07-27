@@ -4,12 +4,22 @@ import 'dart:typed_data';
 import 'package:curveauth_dart/src/ecc_utils.dart';
 import 'package:pointycastle/export.dart';
 
+/// Represents an elliptic curve key pair using the secp256r1 curve.
+///
+/// Provides functionality to:
+/// - Generate new key pairs
+/// - Serialize/deserialize keys to/from JSON
+/// - Export public keys in raw base64 format
+/// - Create ECDSA signatures for messages
 class ECCKeyPair {
   final ECPrivateKey privateKey;
   final ECPublicKey publicKey;
 
   ECCKeyPair._(this.privateKey, this.publicKey);
 
+  /// Generates a new ECC key pair using the secp256r1 curve.
+  ///
+  /// Returns an [ECCKeyPair] containing both private and public keys.
   factory ECCKeyPair.generate() {
     final ecDomain = ECDomainParameters('secp256r1');
     final keyGen = ECKeyGenerator();
@@ -30,6 +40,11 @@ class ECCKeyPair {
     return ECCKeyPair._(priv, pub);
   }
 
+  /// Constructs an [ECCKeyPair] from a JSON map.
+  ///
+  /// Expects `privateKey`, `publicKeyX`, and `publicKeyY` entries in hex string format.
+  ///
+  /// Throws [ArgumentError] if required fields are missing or malformed.
   factory ECCKeyPair.fromJson(Map<String, String> json) {
     final ecDomain = ECDomainParameters('secp256r1');
 
@@ -51,6 +66,11 @@ class ECCKeyPair {
     return ECCKeyPair._(privateKey, publicKey);
   }
 
+  /// Serializes the ECC key pair to a JSON-compatible map with hex string values.
+  ///
+  /// Returns a [Map] with keys: `privateKey`, `publicKeyX`, and `publicKeyY`.
+  ///
+  /// Throws [StateError] if any component is null or invalid.
   Map<String, String> toJson() {
     final d = privateKey.d;
     final q = publicKey.Q;
@@ -65,6 +85,11 @@ class ECCKeyPair {
     return {'privateKey': privHex, 'publicKeyX': pubX, 'publicKeyY': pubY};
   }
 
+  /// Exports the public key in uncompressed format as a base64-encoded string.
+  ///
+  /// The output is a 65-byte array: 0x04 || X (32 bytes) || Y (32 bytes).
+  ///
+  /// Throws [StateError] if the public key is incomplete.
   String exportPublicKeyRawBase64() {
     final q = publicKey.Q;
     if (q == null || q.x == null || q.y == null) {
@@ -91,6 +116,11 @@ class ECCKeyPair {
     return base64Encode(pubBytes);
   }
 
+  /// Creates an ECDSA signature for the given challenge string.
+  ///
+  /// Uses SHA-256 for hashing and encodes the signature in DER format, then base64.
+  ///
+  /// Returns a [Future] that completes with a base64-encoded DER signature string.
   Future<String> createSignature(String challenge) async {
     final signer = Signer('SHA-256/ECDSA');
     final random = FortunaRandom();
