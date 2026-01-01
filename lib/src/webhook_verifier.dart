@@ -18,11 +18,11 @@ class WebhookVerifier {
   /// [payload] is the raw request body as a string.
   /// [signature] is the HMAC signature from the webhook header.
   /// [secret] is the webhook secret key.
-  static bool verifyGitHubWebhook(
-    String payload,
-    String signature,
-    String secret,
-  ) {
+  static bool verifyGitHubWebhook({
+    required String payload,
+    required String signature,
+    required String secret,
+  }) {
     try {
       final normalizedSignature = _normalizeSignature(signature);
       final key = Uint8List.fromList(secret.codeUnits);
@@ -63,7 +63,10 @@ class WebhookVerifier {
   /// [secret] is the webhook secret key.
   ///
   /// Returns the HMAC signature string.
-  static String generateGitHubWebhookSignature(String payload, String secret) {
+  static String generateGitHubWebhookSignature({
+    required String payload,
+    required String secret,
+  }) {
     final key = Uint8List.fromList(secret.codeUnits);
     final data = Uint8List.fromList(payload.codeUnits);
 
