@@ -35,9 +35,9 @@ final isValid = keyPair.verifySignature('hello world', signature);
 
 // Static method (requires public key parameter)
 final isValid = ECCKeyPair.verifySignatureStatic(
-  'hello world',
-  signature,
-  publicKeyBase64,
+  message: 'hello world',
+  signature: signature,
+  publicKeyBase64: publicKeyBase64,
 );
 ```
 
@@ -57,8 +57,20 @@ import 'package:curveauth_dart/curveauth_dart.dart';
 
 // Verify webhook with or without 'sha256=' prefix
 final isValid = WebhookVerifier.verifyGitHubWebhook(
-  payload,
-  'sha256=757107ea0eb2509fc211221cce984b8a37570b6d7586c22c46f4379c8b043e17',
-  'your-webhook-secret',
+  payload: payload,
+  signature: 'sha256=757107ea0eb2509fc211221cce984b8a37570b6d7586c22c46f4379c8b043e17',
+  secret: 'your-webhook-secret',
+);
+```
+
+### Generate Webhook Signature (for testing)
+
+```dart
+import 'package:curveauth_dart/curveauth_dart.dart';
+
+// Generate a webhook signature
+final signature = WebhookVerifier.generateGitHubWebhookSignature(
+  payload: payload,
+  secret: 'your-webhook-secret',
 );
 ```
