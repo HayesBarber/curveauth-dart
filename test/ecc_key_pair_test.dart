@@ -58,4 +58,30 @@ void main() {
       reason: 'DER signature should be fully parsed',
     );
   });
+
+  test(
+    'ECCKeyPair can verify its own signature with instance method',
+    () async {
+      final keyPair = ECCKeyPair.generate();
+      final challenge = 'test-challenge';
+      final signature = await keyPair.createSignature(challenge);
+
+      final isValid = keyPair.verifySignature(challenge, signature);
+      expect(isValid, isTrue);
+    },
+  );
+
+  test('ECCKeyPair can verify its own signature with static method', () async {
+    final keyPair = ECCKeyPair.generate();
+    final challenge = 'test-challenge';
+    final signature = await keyPair.createSignature(challenge);
+    final publicKeyB64 = keyPair.exportPublicKeyRawBase64();
+
+    final isValid = ECCKeyPair.verifySignatureStatic(
+      challenge,
+      signature,
+      publicKeyB64,
+    );
+    expect(isValid, isTrue);
+  });
 }
