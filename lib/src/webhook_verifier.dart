@@ -1,3 +1,6 @@
+import 'package:pointycastle/export.dart';
+import 'dart:typed_data';
+
 /// A utility class for verifying webhook signatures using HMAC.
 ///
 /// Currently supports GitHub webhooks using HMAC-SHA256.
@@ -18,7 +21,23 @@ class WebhookVerifier {
     String signature,
     String secret,
   ) {
-    // TODO: Implement GitHub webhook HMAC verification using pointycastle
-    return false;
+    try {
+      final key = Uint8List.fromList(secret.codeUnits);
+      final data = Uint8List.fromList(payload.codeUnits);
+
+      final hmac = HMac(SHA256Digest(), 64);
+      hmac.init(KeyParameter(key));
+      hmac.update(data, 0, data.length);
+
+      final mac = Uint8List(hmac.macSize);
+      hmac.doFinal(mac, 0);
+      final computedSignature = mac
+          .map((b) => b.toRadixString(16).padLeft(2, '0'))
+          .join();
+
+      return computedSignature == signature;
+    } catch (_) {
+      return false;
+    }
   }
 }
