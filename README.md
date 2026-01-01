@@ -1,6 +1,6 @@
 # curveauth-dart
 
-A lightweight Dart library for elliptic curve cryptography (ECC) using the `secp256r1` curve. Also includes a webhook verifier.
+A lightweight Dart library for working with elliptic curve cryptography (ECC) using the `secp256r1` curve. Also includes a webhook verifier.
 
 ## Features
 
