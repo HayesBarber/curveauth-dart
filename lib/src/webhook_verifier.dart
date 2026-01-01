@@ -54,6 +54,32 @@ class WebhookVerifier {
     return signature;
   }
 
+  /// Generates a GitHub webhook signature using HMAC-SHA256.
+  ///
+  /// Returns the signature as a hex string with the 'sha256=' prefix.
+  /// Useful for testing webhook signature verification.
+  ///
+  /// [payload] is the raw request body as a string.
+  /// [secret] is the webhook secret key.
+  ///
+  /// Returns the HMAC signature string.
+  static String generateGitHubWebhookSignature(String payload, String secret) {
+    final key = Uint8List.fromList(secret.codeUnits);
+    final data = Uint8List.fromList(payload.codeUnits);
+
+    final hmac = HMac(SHA256Digest(), 64);
+    hmac.init(KeyParameter(key));
+    hmac.update(data, 0, data.length);
+
+    final mac = Uint8List(hmac.macSize);
+    hmac.doFinal(mac, 0);
+    final signature = mac
+        .map((b) => b.toRadixString(16).padLeft(2, '0'))
+        .join();
+
+    return 'sha256=$signature';
+  }
+
   /// Performs a constant-time string comparison to prevent timing attacks.
   ///
   /// Returns `true` if the strings are equal, `false` otherwise.

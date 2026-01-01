@@ -158,5 +158,138 @@ void main() {
         expect(isValid, isFalse);
       });
     });
+
+    group('signature generation', () {
+      test('generates signature that can be verified', () {
+        const secret = 'It\'s a Secret to Everybody';
+        const payload = 'Hello, World!';
+
+        final signature = WebhookVerifier.generateGitHubWebhookSignature(
+          payload,
+          secret,
+        );
+
+        final isValid = WebhookVerifier.verifyGitHubWebhook(
+          payload,
+          signature,
+          secret,
+        );
+        expect(isValid, isTrue);
+      });
+
+      test('return false for differnt secrets', () {
+        const secret = 'It\'s a Secret to Everybody';
+        const secret2 = 'invalid';
+        const payload = 'Hello, World!';
+
+        final signature = WebhookVerifier.generateGitHubWebhookSignature(
+          payload,
+          secret,
+        );
+
+        final isValid = WebhookVerifier.verifyGitHubWebhook(
+          payload,
+          signature,
+          secret2,
+        );
+        expect(isValid, isFalse);
+      });
+
+      test('generates different signatures for different payloads', () {
+        const secret = 'It\'s a Secret to Everybody';
+        const payload1 = 'Hello, World!';
+        const payload2 = 'Goodbye, World!';
+
+        final signature1 = WebhookVerifier.generateGitHubWebhookSignature(
+          payload1,
+          secret,
+        );
+        final signature2 = WebhookVerifier.generateGitHubWebhookSignature(
+          payload2,
+          secret,
+        );
+
+        expect(signature1, isNot(equals(signature2)));
+      });
+
+      test('generates different signatures for different secrets', () {
+        const secret1 = 'It\'s a Secret to Everybody';
+        const secret2 = 'It\'s a Secret to Nobody';
+        const payload = 'Hello, World!';
+
+        final signature1 = WebhookVerifier.generateGitHubWebhookSignature(
+          payload,
+          secret1,
+        );
+        final signature2 = WebhookVerifier.generateGitHubWebhookSignature(
+          payload,
+          secret2,
+        );
+
+        expect(signature1, isNot(equals(signature2)));
+      });
+
+      test('generates signature with correct prefix', () {
+        const secret = 'It\'s a Secret to Everybody';
+        const payload = 'Hello, World!';
+
+        final signature = WebhookVerifier.generateGitHubWebhookSignature(
+          payload,
+          secret,
+        );
+
+        expect(signature, startsWith('sha256='));
+      });
+
+      test('generates consistent signatures', () {
+        const secret = 'It\'s a Secret to Everybody';
+        const payload = 'Hello, World!';
+
+        final signature1 = WebhookVerifier.generateGitHubWebhookSignature(
+          payload,
+          secret,
+        );
+        final signature2 = WebhookVerifier.generateGitHubWebhookSignature(
+          payload,
+          secret,
+        );
+
+        expect(signature1, equals(signature2));
+      });
+
+      test('handles empty payload', () {
+        const secret = 'It\'s a Secret to Everybody';
+        const payload = '';
+
+        final signature = WebhookVerifier.generateGitHubWebhookSignature(
+          payload,
+          secret,
+        );
+
+        final isValid = WebhookVerifier.verifyGitHubWebhook(
+          payload,
+          signature,
+          secret,
+        );
+        expect(isValid, isTrue);
+      });
+
+      test('handles empty secret', () {
+        const secret = '';
+        const payload = 'Hello, World!';
+
+        final signature = WebhookVerifier.generateGitHubWebhookSignature(
+          payload,
+          secret,
+        );
+
+        final isValid = WebhookVerifier.verifyGitHubWebhook(
+          payload,
+          signature,
+          secret,
+        );
+        expect(isValid, isTrue);
+      });
+    });
   });
 }
