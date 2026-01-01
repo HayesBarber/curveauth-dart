@@ -11,9 +11,9 @@ void main() {
             '757107ea0eb2509fc211221cce984b8a37570b6d7586c22c46f4379c8b043e17';
 
         final isValid = WebhookVerifier.verifyGitHubWebhook(
-          payload,
-          expectedSignature,
-          secret,
+          payload: payload,
+          signature: expectedSignature,
+          secret: secret,
         );
         expect(isValid, isTrue);
       });
@@ -24,9 +24,9 @@ void main() {
         const invalidSignature = 'invalid_signature_hash';
 
         final isValid = WebhookVerifier.verifyGitHubWebhook(
-          payload,
-          invalidSignature,
-          secret,
+          payload: payload,
+          signature: invalidSignature,
+          secret: secret,
         );
         expect(isValid, isFalse);
       });
@@ -38,9 +38,9 @@ void main() {
             '757107ea0eb2509fc211221cce984b8a37570b6d7586c22c46f4379c8b043e17';
 
         final isValid = WebhookVerifier.verifyGitHubWebhook(
-          payload,
-          validSignature,
-          secret,
+          payload: payload,
+          signature: validSignature,
+          secret: secret,
         );
         expect(isValid, isFalse);
       });
@@ -52,9 +52,9 @@ void main() {
             '757107ea0eb2509fc211221cce984b8a37570b6d7586c22c46f4379c8b043e17';
 
         final isValid = WebhookVerifier.verifyGitHubWebhook(
-          payload,
-          validSignature,
-          secret,
+          payload: payload,
+          signature: validSignature,
+          secret: secret,
         );
         expect(isValid, isFalse);
       });
@@ -68,9 +68,9 @@ void main() {
             'sha256=757107ea0eb2509fc211221cce984b8a37570b6d7586c22c46f4379c8b043e17';
 
         final isValid = WebhookVerifier.verifyGitHubWebhook(
-          payload,
-          expectedSignature,
-          secret,
+          payload: payload,
+          signature: expectedSignature,
+          secret: secret,
         );
         expect(isValid, isTrue);
       });
@@ -81,9 +81,9 @@ void main() {
         const invalidSignature = 'sha256=invalid_signature_hash';
 
         final isValid = WebhookVerifier.verifyGitHubWebhook(
-          payload,
-          invalidSignature,
-          secret,
+          payload: payload,
+          signature: invalidSignature,
+          secret: secret,
         );
         expect(isValid, isFalse);
       });
@@ -95,9 +95,9 @@ void main() {
             'sha256=757107ea0eb2509fc211221cce984b8a37570b6d7586c22c46f4379c8b043e17';
 
         final isValid = WebhookVerifier.verifyGitHubWebhook(
-          payload,
-          validSignature,
-          secret,
+          payload: payload,
+          signature: validSignature,
+          secret: secret,
         );
         expect(isValid, isFalse);
       });
@@ -109,9 +109,9 @@ void main() {
             'sha256=757107ea0eb2509fc211221cce984b8a37570b6d7586c22c46f4379c8b043e17';
 
         final isValid = WebhookVerifier.verifyGitHubWebhook(
-          payload,
-          validSignature,
-          secret,
+          payload: payload,
+          signature: validSignature,
+          secret: secret,
         );
         expect(isValid, isFalse);
       });
@@ -124,9 +124,9 @@ void main() {
         const emptySignature = '';
 
         final isValid = WebhookVerifier.verifyGitHubWebhook(
-          payload,
-          emptySignature,
-          secret,
+          payload: payload,
+          signature: emptySignature,
+          secret: secret,
         );
         expect(isValid, isFalse);
       });
@@ -137,9 +137,9 @@ void main() {
         const prefixOnly = 'sha256=';
 
         final isValid = WebhookVerifier.verifyGitHubWebhook(
-          payload,
-          prefixOnly,
-          secret,
+          payload: payload,
+          signature: prefixOnly,
+          secret: secret,
         );
         expect(isValid, isFalse);
       });
@@ -151,11 +151,144 @@ void main() {
             'sha257=757107ea0eb2509fc211221cce984b8a37570b6d7586c22c46f4379c8b043e17';
 
         final isValid = WebhookVerifier.verifyGitHubWebhook(
-          payload,
-          malformedPrefix,
-          secret,
+          payload: payload,
+          signature: malformedPrefix,
+          secret: secret,
         );
         expect(isValid, isFalse);
+      });
+    });
+
+    group('signature generation', () {
+      test('generates signature that can be verified', () {
+        const secret = 'It\'s a Secret to Everybody';
+        const payload = 'Hello, World!';
+
+        final signature = WebhookVerifier.generateGitHubWebhookSignature(
+          payload: payload,
+          secret: secret,
+        );
+
+        final isValid = WebhookVerifier.verifyGitHubWebhook(
+          payload: payload,
+          signature: signature,
+          secret: secret,
+        );
+        expect(isValid, isTrue);
+      });
+
+      test('return false for differnt secrets', () {
+        const secret = 'It\'s a Secret to Everybody';
+        const secret2 = 'invalid';
+        const payload = 'Hello, World!';
+
+        final signature = WebhookVerifier.generateGitHubWebhookSignature(
+          payload: payload,
+          secret: secret,
+        );
+
+        final isValid = WebhookVerifier.verifyGitHubWebhook(
+          payload: payload,
+          signature: signature,
+          secret: secret2,
+        );
+        expect(isValid, isFalse);
+      });
+
+      test('generates different signatures for different payloads', () {
+        const secret = 'It\'s a Secret to Everybody';
+        const payload1 = 'Hello, World!';
+        const payload2 = 'Goodbye, World!';
+
+        final signature1 = WebhookVerifier.generateGitHubWebhookSignature(
+          payload: payload1,
+          secret: secret,
+        );
+        final signature2 = WebhookVerifier.generateGitHubWebhookSignature(
+          payload: payload2,
+          secret: secret,
+        );
+
+        expect(signature1, isNot(equals(signature2)));
+      });
+
+      test('generates different signatures for different secrets', () {
+        const secret1 = 'It\'s a Secret to Everybody';
+        const secret2 = 'It\'s a Secret to Nobody';
+        const payload = 'Hello, World!';
+
+        final signature1 = WebhookVerifier.generateGitHubWebhookSignature(
+          payload: payload,
+          secret: secret1,
+        );
+        final signature2 = WebhookVerifier.generateGitHubWebhookSignature(
+          payload: payload,
+          secret: secret2,
+        );
+
+        expect(signature1, isNot(equals(signature2)));
+      });
+
+      test('generates signature with correct prefix', () {
+        const secret = 'It\'s a Secret to Everybody';
+        const payload = 'Hello, World!';
+
+        final signature = WebhookVerifier.generateGitHubWebhookSignature(
+          payload: payload,
+          secret: secret,
+        );
+
+        expect(signature, startsWith('sha256='));
+      });
+
+      test('generates consistent signatures', () {
+        const secret = 'It\'s a Secret to Everybody';
+        const payload = 'Hello, World!';
+
+        final signature1 = WebhookVerifier.generateGitHubWebhookSignature(
+          payload: payload,
+          secret: secret,
+        );
+        final signature2 = WebhookVerifier.generateGitHubWebhookSignature(
+          payload: payload,
+          secret: secret,
+        );
+
+        expect(signature1, equals(signature2));
+      });
+
+      test('handles empty payload', () {
+        const secret = 'It\'s a Secret to Everybody';
+        const payload = '';
+
+        final signature = WebhookVerifier.generateGitHubWebhookSignature(
+          payload: payload,
+          secret: secret,
+        );
+
+        final isValid = WebhookVerifier.verifyGitHubWebhook(
+          payload: payload,
+          signature: signature,
+          secret: secret,
+        );
+        expect(isValid, isTrue);
+      });
+
+      test('handles empty secret', () {
+        const secret = '';
+        const payload = 'Hello, World!';
+
+        final signature = WebhookVerifier.generateGitHubWebhookSignature(
+          payload: payload,
+          secret: secret,
+        );
+
+        final isValid = WebhookVerifier.verifyGitHubWebhook(
+          payload: payload,
+          signature: signature,
+          secret: secret,
+        );
+        expect(isValid, isTrue);
       });
     });
   });
