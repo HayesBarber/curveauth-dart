@@ -78,13 +78,13 @@ void main() {
 
     test('produces expected length for various inputs', () {
       final testCases = [
-        (1, 2), // 1 byte -> 2 chars
-        (2, 3), // 2 bytes -> 3 chars
-        (3, 4), // 3 bytes -> 4 chars
-        (4, 6), // 4 bytes -> 6 chars
-        (8, 11), // 8 bytes -> 11 chars
-        (16, 22), // 16 bytes -> 22 chars
-        (32, 43), // 32 bytes -> 43 chars
+        (1, 2),
+        (2, 3),
+        (3, 4),
+        (4, 6),
+        (8, 11),
+        (16, 22),
+        (32, 43),
       ];
 
       for (final (input, expectedLength) in testCases) {
