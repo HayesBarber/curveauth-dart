@@ -1,5 +1,6 @@
 import 'package:pointycastle/export.dart';
 import 'dart:typed_data';
+import 'crypto_utils.dart';
 
 /// A utility class for verifying webhook signatures using HMAC.
 ///
@@ -38,7 +39,10 @@ class WebhookVerifier {
           .map((b) => b.toRadixString(16).padLeft(2, '0'))
           .join();
 
-      return _constantTimeCompare(computedSignature, normalizedSignature);
+      return CryptoUtils.constantTimeCompare(
+        computedSignature,
+        normalizedSignature,
+      );
     } catch (_) {
       return false;
     }
@@ -81,21 +85,5 @@ class WebhookVerifier {
         .join();
 
     return 'sha256=$signature';
-  }
-
-  /// Performs a constant-time string comparison to prevent timing attacks.
-  ///
-  /// Returns `true` if the strings are equal, `false` otherwise.
-  static bool _constantTimeCompare(String a, String b) {
-    if (a.length != b.length) {
-      return false;
-    }
-
-    var mismatch = 0;
-    for (var i = 0; i < a.length; i++) {
-      mismatch |= a.codeUnitAt(i) ^ b.codeUnitAt(i);
-    }
-
-    return mismatch == 0;
   }
 }
