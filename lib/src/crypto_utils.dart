@@ -1,13 +1,15 @@
 import 'dart:convert';
+import 'dart:math';
 import 'dart:typed_data';
 import 'package:pointycastle/pointycastle.dart';
 
-/// A utility class for working with elliptic curve cryptography (ECC) in Dart.
+/// A utility class for cryptographic operations in Dart.
 ///
 /// Provides methods for:
 /// - Encoding and decoding ECDSA signatures in DER format.
 /// - Parsing raw base64-encoded uncompressed ECC public keys.
-class ECCUtils {
+/// - Constant-time string comparisons for security.
+class CryptoUtils {
   /// Encodes the given ECDSA signature components into DER format.
   ///
   /// The signature is encoded as a DER sequence of two ASN.1 integers (r, s).
@@ -85,5 +87,47 @@ class ECCUtils {
     final ecDomain = ECDomainParameters('secp256r1');
     final Q = ecDomain.curve.createPoint(x, y);
     return ECPublicKey(Q, ecDomain);
+  }
+
+  /// Performs a constant-time string comparison to prevent timing attacks.
+  ///
+  /// Returns `true` if the strings are equal, `false` otherwise.
+  static bool constantTimeCompare(String a, String b) {
+    if (a.length != b.length) {
+      return false;
+    }
+
+    var mismatch = 0;
+    for (var i = 0; i < a.length; i++) {
+      mismatch |= a.codeUnitAt(i) ^ b.codeUnitAt(i);
+    }
+
+    return mismatch == 0;
+  }
+
+  /// Generates a cryptographically secure random API key.
+  ///
+  /// The key consists of URL-safe base64 characters (A-Z, a-z, 0-9, -, _) with
+  /// no padding. The default length generates 32 bytes of random data, which
+  /// results in a 43-character base64-encoded string.
+  ///
+  /// [length] specifies the number of random bytes to generate (default: 32).
+  /// Must be between 1 and 1024 bytes.
+  ///
+  /// Throws an [ArgumentError] if [length] is out of range.
+  ///
+  /// Returns a URL-safe base64-encoded string suitable for use as an API key.
+  static String generateApiKey({int length = 32}) {
+    if (length < 1 || length > 1024) {
+      throw ArgumentError('Length must be between 1 and 1024 bytes');
+    }
+
+    final random = Random.secure();
+    final bytes = Uint8List(length);
+    for (var i = 0; i < length; i++) {
+      bytes[i] = random.nextInt(256);
+    }
+
+    return base64Url.encode(bytes).replaceAll('=', '');
   }
 }

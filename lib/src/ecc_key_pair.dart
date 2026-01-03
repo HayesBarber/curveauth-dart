@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
-import 'package:curveauth_dart/src/ecc_utils.dart';
+import 'package:curveauth_dart/src/crypto_utils.dart';
 import 'package:pointycastle/export.dart';
 
 /// Represents an elliptic curve key pair using the secp256r1 curve.
@@ -139,7 +139,7 @@ class ECCKeyPair {
     final message = Uint8List.fromList(challenge.codeUnits);
     final sig = signer.generateSignature(message) as ECSignature;
 
-    final der = ECCUtils.encodeDer(sig.r, sig.s);
+    final der = CryptoUtils.encodeDer(sig.r, sig.s);
     return base64Encode(der);
   }
 
@@ -155,7 +155,7 @@ class ECCKeyPair {
   bool verifySignature(String message, String signatureB64) {
     try {
       final signatureBytes = base64Decode(signatureB64);
-      final sig = ECCUtils.decodeDer(signatureBytes);
+      final sig = CryptoUtils.decodeDer(signatureBytes);
 
       final signer = Signer('SHA-256/ECDSA');
       signer.init(false, PublicKeyParameter<ECPublicKey>(publicKey));
@@ -185,8 +185,8 @@ class ECCKeyPair {
   ) {
     try {
       final signatureBytes = base64Decode(signatureB64);
-      final publicKey = ECCUtils.loadPublicKeyRawBase64(publicKeyB64);
-      final sig = ECCUtils.decodeDer(signatureBytes);
+      final publicKey = CryptoUtils.loadPublicKeyRawBase64(publicKeyB64);
+      final sig = CryptoUtils.decodeDer(signatureBytes);
 
       final signer = Signer('SHA-256/ECDSA');
       signer.init(false, PublicKeyParameter<ECPublicKey>(publicKey));
