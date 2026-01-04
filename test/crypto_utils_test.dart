@@ -97,4 +97,37 @@ void main() {
       }
     });
   });
+
+  group('CryptoUtils.generateThreeDigitCode', () {
+    test('generates 3-digit code', () {
+      final code = CryptoUtils.generateThreeDigitCode();
+
+      expect(code, isNotNull);
+      expect(code.length, equals(3));
+    });
+
+    test('generates numeric code only', () {
+      final code = CryptoUtils.generateThreeDigitCode();
+
+      final pattern = RegExp(r'^[0-9]{3}$');
+      expect(code, matches(pattern));
+    });
+
+    test('generates codes in valid range', () {
+      for (var i = 0; i < 100; i++) {
+        final code = CryptoUtils.generateThreeDigitCode();
+        final intValue = int.parse(code);
+        expect(intValue, greaterThanOrEqualTo(100));
+        expect(intValue, lessThanOrEqualTo(999));
+      }
+    });
+
+    test('generates different codes on multiple calls', () {
+      final codes = <String>{};
+      for (var i = 0; i < 50; i++) {
+        codes.add(CryptoUtils.generateThreeDigitCode());
+      }
+      expect(codes.length, greaterThan(1));
+    });
+  });
 }
