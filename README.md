@@ -97,3 +97,14 @@ import 'package:curveauth_dart/curveauth_dart.dart';
 // Returns string like "123", "456", "789", etc.
 final code = CryptoUtils.generateThreeDigitCode();
 ```
+
+### Generate Challenge String
+
+```dart
+import 'package:curveauth_dart/curveauth_dart.dart';
+
+final challenge = CryptoUtils.generateChallenge();
+
+// Generate challenge with custom length in bytes
+final customChallenge = CryptoUtils.generateChallenge(length: 32);
+```

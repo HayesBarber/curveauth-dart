@@ -116,7 +116,7 @@ class CryptoUtils {
   ///
   /// Throws an [ArgumentError] if [length] is out of range.
   ///
-  /// Returns a URL-safe base64-encoded string suitable for use as an API key.
+  /// Returns a base64-encoded string suitable for use as an API key.
   static String generateApiKey({int length = 32}) {
     if (length < 1 || length > 1024) {
       throw ArgumentError('Length must be between 1 and 1024 bytes');
@@ -137,5 +137,21 @@ class CryptoUtils {
   static String generateThreeDigitCode() {
     final random = Random.secure();
     return (100 + random.nextInt(900)).toString();
+  }
+
+  /// Generates a cryptographically secure random challenge string.
+  ///
+  /// The challenge consists of base64-encoded random bytes suitable for
+  /// cryptographic challenges that need to be signed. The default length
+  /// generates 16 bytes of random data.
+  ///
+  /// [length] specifies the number of random bytes to generate (default: 16).
+  /// Must be between 1 and 1024 bytes.
+  ///
+  /// Throws an [ArgumentError] if [length] is out of range.
+  ///
+  /// Returns a base64-encoded string suitable for use as a cryptographic challenge.
+  static String generateChallenge({int length = 16}) {
+    return generateApiKey(length: length);
   }
 }
