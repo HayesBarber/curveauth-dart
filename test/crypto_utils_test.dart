@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'dart:typed_data';
 import 'package:curveauth_dart/curveauth_dart.dart';
 import 'package:test/test.dart';
 
@@ -128,6 +130,51 @@ void main() {
         codes.add(CryptoUtils.generateThreeDigitCode());
       }
       expect(codes.length, greaterThan(1));
+    });
+  });
+
+  group('CryptoUtils.generateChallenge', () {
+    test('generates challenge with default length', () {
+      final challenge = CryptoUtils.generateChallenge();
+
+      expect(challenge, isNotNull);
+      expect(challenge, isNotEmpty);
+    });
+
+    test('generates challenge with custom length', () {
+      final challenge = CryptoUtils.generateChallenge(length: 16);
+
+      expect(challenge, isNotNull);
+      expect(challenge, isNotEmpty);
+      expect(challenge.length, equals(22));
+    });
+
+    test('generates different challenges on multiple calls', () {
+      final challenge1 = CryptoUtils.generateChallenge();
+      final challenge2 = CryptoUtils.generateChallenge();
+
+      expect(challenge1, isNot(equals(challenge2)));
+    });
+
+    test('throws ArgumentError for length 0', () {
+      expect(
+        () => CryptoUtils.generateChallenge(length: 0),
+        throwsA(isA<ArgumentError>()),
+      );
+    });
+
+    test('throws ArgumentError for negative length', () {
+      expect(
+        () => CryptoUtils.generateChallenge(length: -1),
+        throwsA(isA<ArgumentError>()),
+      );
+    });
+
+    test('throws ArgumentError for length > 1024', () {
+      expect(
+        () => CryptoUtils.generateChallenge(length: 1025),
+        throwsA(isA<ArgumentError>()),
+      );
     });
   });
 }
