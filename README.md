@@ -9,6 +9,7 @@ A lightweight Dart library for working with elliptic curve cryptography (ECC) us
 - Export public keys in uncompressed base64 format
 - Create and verify ECDSA signatures (DER encoded, base64)
 - Verify GitHub webhook signatures using HMAC-SHA256
+- Generate cryptographically secure API keys and verification codes
 - Utility functions for DER encoding/decoding
 
 ## Getting Started
@@ -73,4 +74,26 @@ final signature = WebhookVerifier.generateGitHubWebhookSignature(
   payload: payload,
   secret: 'your-webhook-secret',
 );
+```
+
+## Cryptographic Utilities
+
+### Generate API Key
+
+```dart
+import 'package:curveauth_dart/curveauth_dart.dart';
+
+final apiKey = CryptoUtils.generateApiKey();
+
+// Generate API key with custom length in bytes
+final customKey = CryptoUtils.generateApiKey(length: 16);
+```
+
+### Generate Three-Digit Code
+
+```dart
+import 'package:curveauth_dart/curveauth_dart.dart';
+
+// Returns string like "123", "456", "789", etc.
+final code = CryptoUtils.generateThreeDigitCode();
 ```
