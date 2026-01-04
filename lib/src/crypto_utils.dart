@@ -107,7 +107,7 @@ class CryptoUtils {
 
   /// Generates a cryptographically secure random API key.
   ///
-  /// The key consists of URL-safe base64 characters (A-Z, a-z, 0-9, -, _) with
+  /// The key consists of base64 characters (A-Z, a-z, 0-9, -, _) with
   /// no padding. The default length generates 32 bytes of random data, which
   /// results in a 43-character base64-encoded string.
   ///
