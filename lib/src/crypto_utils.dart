@@ -130,4 +130,12 @@ class CryptoUtils {
 
     return base64Url.encode(bytes).replaceAll('=', '');
   }
+
+  /// Generates a cryptographically secure random 3-digit code.
+  ///
+  /// Returns a string containing exactly 3 digits (0-9).
+  static String generateThreeDigitCode() {
+    final random = Random.secure();
+    return (100 + random.nextInt(900)).toString();
+  }
 }
