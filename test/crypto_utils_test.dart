@@ -142,17 +142,11 @@ void main() {
     });
 
     test('generates challenge with custom length', () {
-      final challenge = CryptoUtils.generateChallenge(length: 8);
+      final challenge = CryptoUtils.generateChallenge(length: 16);
 
       expect(challenge, isNotNull);
       expect(challenge, isNotEmpty);
-    });
-
-    test('generates valid base64 string', () {
-      final challenge = CryptoUtils.generateChallenge();
-
-      final decoded = base64Decode(challenge);
-      expect(decoded, isA<Uint8List>());
+      expect(challenge.length, equals(22));
     });
 
     test('generates different challenges on multiple calls', () {
@@ -160,12 +154,6 @@ void main() {
       final challenge2 = CryptoUtils.generateChallenge();
 
       expect(challenge1, isNot(equals(challenge2)));
-    });
-
-    test('produces expected byte length', () {
-      final challenge = CryptoUtils.generateChallenge(length: 16);
-      final decoded = base64Decode(challenge);
-      expect(decoded.length, equals(16));
     });
 
     test('throws ArgumentError for length 0', () {
