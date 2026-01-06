@@ -2,66 +2,66 @@ import 'package:curveauth_dart/curveauth_dart.dart';
 import 'package:test/test.dart';
 
 void main() {
-  group('CryptoUtils.generateApiKey', () {
-    test('generates API key with default length', () {
-      final apiKey = CryptoUtils.generateApiKey();
+  group('CryptoUtils.generateBytes', () {
+    test('generates bytes with default length', () {
+      final apiKey = CryptoUtils.generateBytes();
 
       expect(apiKey, isNotNull);
       expect(apiKey, isNotEmpty);
       expect(apiKey.length, equals(43));
     });
 
-    test('generates API key with custom length', () {
-      final apiKey = CryptoUtils.generateApiKey(length: 16);
+    test('generates bytes with custom length', () {
+      final apiKey = CryptoUtils.generateBytes(length: 16);
 
       expect(apiKey, isNotNull);
       expect(apiKey, isNotEmpty);
       expect(apiKey.length, equals(22));
     });
 
-    test('generates different keys on multiple calls', () {
-      final key1 = CryptoUtils.generateApiKey();
-      final key2 = CryptoUtils.generateApiKey();
+    test('generates different bytes on multiple calls', () {
+      final key1 = CryptoUtils.generateBytes();
+      final key2 = CryptoUtils.generateBytes();
 
       expect(key1, isNot(equals(key2)));
     });
 
     test('generates URL-safe base64 characters only', () {
-      final apiKey = CryptoUtils.generateApiKey();
+      final apiKey = CryptoUtils.generateBytes();
 
       final pattern = RegExp(r'^[A-Za-z0-9_-]+$');
       expect(apiKey, matches(pattern));
     });
 
     test('does not contain padding characters', () {
-      final apiKey = CryptoUtils.generateApiKey();
+      final apiKey = CryptoUtils.generateBytes();
 
       expect(apiKey, isNot(contains('=')));
     });
 
     test('throws ArgumentError for length 0', () {
       expect(
-        () => CryptoUtils.generateApiKey(length: 0),
+        () => CryptoUtils.generateBytes(length: 0),
         throwsA(isA<ArgumentError>()),
       );
     });
 
     test('throws ArgumentError for negative length', () {
       expect(
-        () => CryptoUtils.generateApiKey(length: -1),
+        () => CryptoUtils.generateBytes(length: -1),
         throwsA(isA<ArgumentError>()),
       );
     });
 
     test('throws ArgumentError for length > 1024', () {
       expect(
-        () => CryptoUtils.generateApiKey(length: 1025),
+        () => CryptoUtils.generateBytes(length: 1025),
         throwsA(isA<ArgumentError>()),
       );
     });
 
     test('handles minimum valid length', () {
-      final apiKey = CryptoUtils.generateApiKey(length: 1);
+      final apiKey = CryptoUtils.generateBytes(length: 1);
 
       expect(apiKey, isNotNull);
       expect(apiKey, isNotEmpty);
@@ -69,7 +69,7 @@ void main() {
     });
 
     test('handles maximum valid length', () {
-      final apiKey = CryptoUtils.generateApiKey(length: 1024);
+      final apiKey = CryptoUtils.generateBytes(length: 1024);
 
       expect(apiKey, isNotNull);
       expect(apiKey, isNotEmpty);
@@ -88,7 +88,7 @@ void main() {
       ];
 
       for (final (input, expectedLength) in testCases) {
-        final apiKey = CryptoUtils.generateApiKey(length: input);
+        final apiKey = CryptoUtils.generateBytes(length: input);
         expect(
           apiKey.length,
           equals(expectedLength),
@@ -128,51 +128,6 @@ void main() {
         codes.add(CryptoUtils.generateThreeDigitCode());
       }
       expect(codes.length, greaterThan(1));
-    });
-  });
-
-  group('CryptoUtils.generateChallenge', () {
-    test('generates challenge with default length', () {
-      final challenge = CryptoUtils.generateChallenge();
-
-      expect(challenge, isNotNull);
-      expect(challenge, isNotEmpty);
-    });
-
-    test('generates challenge with custom length', () {
-      final challenge = CryptoUtils.generateChallenge(length: 16);
-
-      expect(challenge, isNotNull);
-      expect(challenge, isNotEmpty);
-      expect(challenge.length, equals(22));
-    });
-
-    test('generates different challenges on multiple calls', () {
-      final challenge1 = CryptoUtils.generateChallenge();
-      final challenge2 = CryptoUtils.generateChallenge();
-
-      expect(challenge1, isNot(equals(challenge2)));
-    });
-
-    test('throws ArgumentError for length 0', () {
-      expect(
-        () => CryptoUtils.generateChallenge(length: 0),
-        throwsA(isA<ArgumentError>()),
-      );
-    });
-
-    test('throws ArgumentError for negative length', () {
-      expect(
-        () => CryptoUtils.generateChallenge(length: -1),
-        throwsA(isA<ArgumentError>()),
-      );
-    });
-
-    test('throws ArgumentError for length > 1024', () {
-      expect(
-        () => CryptoUtils.generateChallenge(length: 1025),
-        throwsA(isA<ArgumentError>()),
-      );
     });
   });
 

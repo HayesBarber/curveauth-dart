@@ -78,15 +78,15 @@ final signature = WebhookVerifier.generateGitHubWebhookSignature(
 
 ## Cryptographic Utilities
 
-### Generate API Key
+### Generate Bytes
 
 ```dart
 import 'package:curveauth_dart/curveauth_dart.dart';
 
-final apiKey = CryptoUtils.generateApiKey();
+final byteString = CryptoUtils.generateBytes();
 
-// Generate API key with custom length in bytes
-final customKey = CryptoUtils.generateApiKey(length: 16);
+// Generate bytes with custom length
+final custom = CryptoUtils.generateBytes(length: 16);
 ```
 
 ### Generate Three-Digit Code
@@ -96,17 +96,6 @@ import 'package:curveauth_dart/curveauth_dart.dart';
 
 // Returns string like "123", "456", "789", etc.
 final code = CryptoUtils.generateThreeDigitCode();
-```
-
-### Generate Challenge String
-
-```dart
-import 'package:curveauth_dart/curveauth_dart.dart';
-
-final challenge = CryptoUtils.generateChallenge();
-
-// Generate challenge with custom length in bytes
-final customChallenge = CryptoUtils.generateChallenge(length: 32);
 ```
 
 ### Generate UUID
