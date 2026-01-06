@@ -2,6 +2,9 @@ import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
 import 'package:pointycastle/pointycastle.dart';
+import 'package:uuid/data.dart';
+import 'package:uuid/rng.dart';
+import 'package:uuid/uuid.dart';
 
 /// A utility class for cryptographic operations in Dart.
 ///
@@ -105,6 +108,16 @@ class CryptoUtils {
     return mismatch == 0;
   }
 
+  /// Generates a cryptographically secure UUID v4 string
+  ///
+  /// Uses the UUID package with cryptographic random number generation
+  ///
+  /// Returns a UUID v4 string
+  static String generateId() {
+    const uuid = Uuid();
+    return uuid.v4(config: V4Options(null, CryptoRNG()));
+  }
+
   /// Generates a cryptographically secure random API key.
   ///
   /// The key consists of base64 characters (A-Z, a-z, 0-9, -, _) with
@@ -143,15 +156,15 @@ class CryptoUtils {
   ///
   /// The challenge consists of base64-encoded random bytes suitable for
   /// cryptographic challenges that need to be signed. The default length
-  /// generates 16 bytes of random data.
+  /// generates 32 bytes of random data.
   ///
-  /// [length] specifies the number of random bytes to generate (default: 16).
+  /// [length] specifies the number of random bytes to generate (default: 32).
   /// Must be between 1 and 1024 bytes.
   ///
   /// Throws an [ArgumentError] if [length] is out of range.
   ///
   /// Returns a base64-encoded string suitable for use as a cryptographic challenge.
-  static String generateChallenge({int length = 16}) {
+  static String generateChallenge({int length = 32}) {
     return generateApiKey(length: length);
   }
 }
