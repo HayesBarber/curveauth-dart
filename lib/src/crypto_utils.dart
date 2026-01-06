@@ -108,6 +108,11 @@ class CryptoUtils {
     return mismatch == 0;
   }
 
+  /// Generates a cryptographically secure UUID v4 string
+  ///
+  /// Uses the UUID package with cryptographic random number generation
+  ///
+  /// Returns a UUID v4 string
   static String generateId() {
     const uuid = Uuid();
     return uuid.v4(config: V4Options(null, CryptoRNG()));

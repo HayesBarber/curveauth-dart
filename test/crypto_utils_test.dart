@@ -1,5 +1,3 @@
-import 'dart:convert';
-import 'dart:typed_data';
 import 'package:curveauth_dart/curveauth_dart.dart';
 import 'package:test/test.dart';
 
@@ -175,6 +173,67 @@ void main() {
         () => CryptoUtils.generateChallenge(length: 1025),
         throwsA(isA<ArgumentError>()),
       );
+    });
+  });
+
+  group('CryptoUtils.generateId', () {
+    test('generates valid UUID v4 format', () {
+      final id = CryptoUtils.generateId();
+
+      expect(id, isNotNull);
+      expect(id, isNotEmpty);
+
+      final pattern = RegExp(
+        r'^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$',
+      );
+      expect(id, matches(pattern));
+    });
+
+    test('generates different IDs on multiple calls', () {
+      final id1 = CryptoUtils.generateId();
+      final id2 = CryptoUtils.generateId();
+
+      expect(id1, isNot(equals(id2)));
+    });
+
+    test('generates IDs with correct length', () {
+      final id = CryptoUtils.generateId();
+      expect(id.length, equals(36));
+    });
+
+    test('generates IDs with correct format sections', () {
+      final id = CryptoUtils.generateId();
+      final parts = id.split('-');
+
+      expect(parts.length, equals(5));
+      expect(parts[0].length, equals(8));
+      expect(parts[1].length, equals(4));
+      expect(parts[2].length, equals(4));
+      expect(parts[3].length, equals(4));
+      expect(parts[4].length, equals(12));
+    });
+
+    test('generates IDs with version 4 indicator', () {
+      final id = CryptoUtils.generateId();
+      final parts = id.split('-');
+
+      expect(parts[2][0], equals('4'));
+    });
+
+    test('generates IDs with valid variant', () {
+      final id = CryptoUtils.generateId();
+      final parts = id.split('-');
+
+      final variantChar = parts[3][0];
+      expect(['8', '9', 'a', 'b'], contains(variantChar));
+    });
+
+    test('generates unique IDs across many calls', () {
+      final ids = <String>{};
+      for (var i = 0; i < 100; i++) {
+        ids.add(CryptoUtils.generateId());
+      }
+      expect(ids.length, equals(100));
     });
   });
 }
